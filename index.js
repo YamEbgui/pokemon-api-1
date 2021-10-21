@@ -3,6 +3,7 @@ const app = express();
 const port = 8080;
 const pokemonRouter = require('./src/routers/pokemonRouter');
 
+app.use(express.json());
 app.use('/pokemon', pokemonRouter);
 
 // start the server

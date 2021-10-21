@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const Pokedex = require('pokedex-promise-v2');
 const P = new Pokedex();
 module.exports = router;
@@ -12,13 +14,31 @@ router.get('/get/:id', async (request, response) => {
 
 router.get('/:query', async (request, response) => {
 	const { query } = request.params;
-	let pokemonObject = pokemonToRespond(await getPokemon(query));
-	response.send(pokemonObject);
+	if (await getPokemon(query)) {
+		let pokemonObject = pokemonToRespond();
+		response.send(pokemonObject);
+	} else {
+		response.send(`Couldn't get information, please try again later`);
+	}
 });
 
-router.put('/catch/:id', (request, response) => {});
+router.put('/catch/:id', async (request, response) => {
+	const username = request.headers.username;
+	const id = request.params.id;
 
-// function checkIfUserCatch(params) {}
+	if (hasCaughtPokemon(username, id)) {
+		response.status(403);
+		response.send(`${username} has already cought this pokemon`);
+	} else {
+		try {
+			await catchPokemon(username, id);
+			response.send(`${username} cought this wild pokemon!`);
+		} catch {
+			response.status(500);
+			response.send("Couldn't catch this pokemon, please try again later");
+		}
+	}
+});
 
 async function getPokemon(id) {
 	try {
@@ -26,7 +46,7 @@ async function getPokemon(id) {
 			return response;
 		});
 	} catch (error) {
-		console.log(error);
+		return false;
 	}
 }
 
@@ -40,4 +60,27 @@ function pokemonToRespond(pokemon) {
 		back_pic: pokemon.sprites.back_default,
 		abilities: pokemon.abilities,
 	};
+}
+
+function hasCaughtPokemon(username, id) {
+	const userPokemons = fs.readdirSync(`./users/${username}`);
+	for (const pokemon of userPokemons) {
+		if (path.parse(`${pokemon}`).name == id) {
+			return true;
+		}
+	}
+	return false;
+}
+
+async function catchPokemon(username, id) {
+	const pokemon = pokemonToRespond(await getPokemon(id));
+	await fs.writeFile(
+		`./users/${username}/${id}.json`,
+		JSON.stringify(pokemon),
+		(error) => {
+			if (error) {
+				return error;
+			}
+		}
+	);
 }
