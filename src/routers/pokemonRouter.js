@@ -68,6 +68,18 @@ router.delete(`/release/:id`, (request, response) => {
 	}
 });
 
+//router to return a list of a use pokemon list
+router.get('/', async (request, response) => {
+	const username = request.headers.username;
+
+	try {
+		response.send(await getUserPokemonList(username));
+	} catch {
+		response.status(401);
+		response.send('No such user');
+	}
+});
+
 //get pokemon data
 async function getPokemon(id) {
 	try {
@@ -124,4 +136,15 @@ async function releasePokemon(username, id) {
 			return error;
 		}
 	});
+}
+
+//get all the user pokemon
+async function getUserPokemonList(username) {
+	const list = [];
+	const userPokemons = fs.readdirSync(`./users/${username}`);
+	for (const pokemon of userPokemons) {
+		const pokemonInfo = fs.readFileSync(`./users/${username}/${pokemon}`);
+		list.push(JSON.parse(pokemonInfo));
+	}
+	return list
 }
