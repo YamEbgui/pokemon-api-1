@@ -12,13 +12,15 @@ router.get('/get/:id', async (request, response) => {
 	response.send(pokemonObject);
 });
 
-router.get('/:query', async (request, response) => {
-	const { query } = request.params;
-	if (await getPokemon(query)) {
-		let pokemonObject = pokemonToRespond();
+router.get('/query', async (request, response) => {
+	const query = request.query.name;
+	const pokemon = await getPokemon(query);
+	if (pokemon) {
+		console.log('in if');
+		let pokemonObject = pokemonToRespond(pokemon);
 		response.send(pokemonObject);
 	} else {
-		response.send(`Couldn't get information, please try again later`);
+		response.send('No such pokemon, try another name');
 	}
 });
 
@@ -51,6 +53,7 @@ async function getPokemon(id) {
 }
 
 function pokemonToRespond(pokemon) {
+	console.log(pokemon);
 	return {
 		name: pokemon.name,
 		height: pokemon.height,
