@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const errorHandler = require('../middleware/errorHandler');
 const Pokedex = require('pokedex-promise-v2');
 const P = new Pokedex();
 module.exports = router;
@@ -9,8 +10,12 @@ module.exports = router;
 //router to get pokemon by id
 router.get('/get/:id', async (request, response) => {
 	const { id } = request.params;
-	let pokemonObject = pokemonToRespond(await getPokemon(id));
-	response.send(pokemonObject);
+	const pokemonObject = await getPokemon(id);
+	if (!pokemonObject) {
+		errorHandler(404, response);
+	} else {
+		response.send(pokemonToRespond(pokemonObject));
+	}
 });
 
 //router to get pokemon by name
@@ -22,8 +27,7 @@ router.get('/query', async (request, response) => {
 		let pokemonObject = pokemonToRespond(pokemon);
 		response.send(pokemonObject);
 	} else {
-		response.status(404);
-		response.send('No such pokemon, try another name');
+		errorHandler(404, response);
 	}
 });
 
@@ -33,15 +37,13 @@ router.put('/catch/:id', async (request, response) => {
 	const id = request.params.id;
 
 	if (hasCaughtPokemon(username, id)) {
-		response.status(403);
-		response.send(`${username} has already cought this pokemon`);
+		errorHandler(403, response);
 	} else {
 		try {
 			await catchPokemon(username, id);
-			response.send(`${username} cought this wild pokemon!`);
+			response.send(`User cought this wild pokemon!`);
 		} catch {
-			response.status(500);
-			response.send("Couldn't catch this pokemon, please try again later");
+			errorHandler(500, response);
 		}
 	}
 });
@@ -53,18 +55,13 @@ router.delete(`/release/:id`, (request, response) => {
 	if (hasCaughtPokemon(username, id)) {
 		try {
 			releasePokemon(username, id);
-			response.send(`${username} released this pokemon`);
+			response.send(`User released this pokemon`);
 		} catch {
-			response.status(500);
-			response.send(
-				'There was a problem releasing this pokemon, please try again later'
-			);
+			errorHandler(500, response);
 		}
 	} else {
-		response.status(403);
-		response.send(
-			`${username} have not yet caught the this pokemon, can't release uncaught pokemon`
-		);
+		console.log();
+		errorHandler(403, response);
 	}
 });
 
@@ -75,8 +72,7 @@ router.get('/', async (request, response) => {
 	try {
 		response.send(await getUserPokemonList(username));
 	} catch {
-		response.status(401);
-		response.send('No such user');
+		errorHandler(401, response);
 	}
 });
 
@@ -146,5 +142,5 @@ async function getUserPokemonList(username) {
 		const pokemonInfo = fs.readFileSync(`./users/${username}/${pokemon}`);
 		list.push(JSON.parse(pokemonInfo));
 	}
-	return list
+	return list;
 }

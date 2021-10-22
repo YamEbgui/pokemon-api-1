@@ -1,14 +1,24 @@
-const { response } = require('express');
 const express = require('express');
 const router = express.Router();
+const errorHandler = require('../middleware/errorHandler');
+const fs = require('fs');
 module.exports = router;
 
 router.post('/', (request, response) => {
-	console.log('in');
-	try {
+	const username = request.headers.username;
+	if (!doesUserExist(username)) {
+		errorHandler(401, response);
+	} else {
 		response.send(request.headers.username);
-	} catch {
-		response.status(401);
-		response.send('No username was provided');
 	}
 });
+
+function doesUserExist(username) {
+	const usersList = fs.readdirSync(`./users`);
+	for (const user of usersList) {
+		if (username == user) {
+			return true;
+		}
+	}
+	return false;
+}
