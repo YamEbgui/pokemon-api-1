@@ -5,5 +5,5 @@ module.exports = router;
 
 router.post('/', (request, response) => {
 	const username = request.username;
-	response.send(username);
+	response.send(JSON.stringify({ username: username }));
 });

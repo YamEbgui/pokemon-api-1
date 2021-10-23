@@ -10,8 +10,6 @@ function userHandler(request, response, next) {
 		fs.mkdir(`./users/${username}`, (error) => {
 			if (error) {
 				errorHandler(500, response);
-			} else {
-				response.statusMessage(`User ${username} was created!`);
 			}
 		});
 	}
