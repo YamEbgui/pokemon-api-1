@@ -8,10 +8,8 @@ const userHandler = require('./src/middleware/userHandler');
 
 app.use(express.json());
 app.use(userHandler);
-app.use('/user', userRouter);
 app.use('/pokemon', pokemonRouter);
 app.use('/info', userRouter);
-app.use('/user', userRouter);
 app.use(errorHandler);
 
 // start the server
