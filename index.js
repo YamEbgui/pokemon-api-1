@@ -8,7 +8,7 @@ const errorHandler = require('./src/middleware/errorHandler');
 app.use(express.json());
 app.use('/pokemon', pokemonRouter);
 app.use('/info', userRouter);
-app.use('/', errorHandler);
+app.use('/user', userRouter);
 
 // start the server
 app.listen(port, function () {
