@@ -12,6 +12,7 @@ function userHandler(request, response, next) {
 				errorHandler(500, response);
 			}
 		});
+		next();
 	}
 }
 
