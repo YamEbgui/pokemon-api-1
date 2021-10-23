@@ -33,7 +33,7 @@ router.get('/query', async (request, response) => {
 
 //router to catch a pokemon
 router.put('/catch/:id', async (request, response) => {
-	const username = request.headers.username;
+	const username = request.username;
 	const id = request.params.id;
 
 	if (hasCaughtPokemon(username, id)) {
@@ -50,7 +50,7 @@ router.put('/catch/:id', async (request, response) => {
 
 //router to release a pokemon
 router.delete(`/release/:id`, (request, response) => {
-	const username = request.headers.username;
+	const username = request.username;
 	const id = request.params.id;
 	if (hasCaughtPokemon(username, id)) {
 		try {
@@ -60,14 +60,13 @@ router.delete(`/release/:id`, (request, response) => {
 			errorHandler(500, response);
 		}
 	} else {
-		console.log();
 		errorHandler(403, response);
 	}
 });
 
 //router to return a list of a use pokemon list
 router.get('/', async (request, response) => {
-	const username = request.headers.username;
+	const username = request.username;
 
 	try {
 		response.send(await getUserPokemonList(username));

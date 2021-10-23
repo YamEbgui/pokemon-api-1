@@ -1,5 +1,3 @@
-const e = require('express');
-const express = require('express');
 module.exports = errorHandler;
 
 function errorHandler(error, response) {
@@ -10,7 +8,6 @@ function errorHandler(error, response) {
 			break;
 
 		case 403:
-			console.log();
 			response.status(403);
 			response.send(
 				`User tried to release an uncaught pokemon, or catching an already caught pokemon `
